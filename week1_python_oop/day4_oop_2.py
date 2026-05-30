@@ -4,21 +4,26 @@ Day 4: OOP Part 2 - Inheritance, polymorphism, magic methods
 
 class Animal:
     """Base class for animals."""
+
     def __init__(self, name: str):
-        self.name = name
-        
+        # TODO: Implement
+        pass
+
     def speak(self) -> str:
-        return "Some sound"
+        # TODO: Implement
+        pass
 
 class Dog(Animal):
     """Dog inherits from Animal."""
+
     def speak(self) -> str:
-        return "Woof!"
-        
+        # TODO: Implement
+        pass
+
     def __str__(self) -> str:
-        return f"Dog named {self.name}"
-        
+        # TODO: Implement
+        pass
+
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Dog):
-            return NotImplemented
-        return self.name == other.name
+        # TODO: Implement
+        pass

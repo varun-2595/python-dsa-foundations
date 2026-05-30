@@ -6,29 +6,24 @@ from typing import Any
 
 def is_valid_parentheses(s: str) -> bool:
     """Checks for valid parentheses using a stack."""
-    stack = []
-    mapping = {")": "(", "}": "{", "]": "["}
-    for char in s:
-        if char in mapping.values():
-            stack.append(char)
-        elif char in mapping:
-            if not stack or stack[-1] != mapping[char]:
-                return False
-            stack.pop()
-    return not stack
+    # TODO: Implement
+    pass
 
 class SimpleQueue:
     """A simple queue simulation using deque."""
+
     def __init__(self):
-        self.queue = deque()
-        
+        # TODO: Implement
+        pass
+
     def enqueue(self, item: Any) -> None:
-        self.queue.append(item)
-        
+        # TODO: Implement
+        pass
+
     def dequeue(self) -> Any:
-        if not self.queue:
-            return None
-        return self.queue.popleft()
-        
+        # TODO: Implement
+        pass
+
     def size(self) -> int:
-        return len(self.queue)
+        # TODO: Implement
+        pass
