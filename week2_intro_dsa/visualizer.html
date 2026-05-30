@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Visualizer: Arrays & Stacks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .ds-element {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pop-animation {
+            animation: popOut 0.4s ease-out forwards;
+        }
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2) translateY(-20px); opacity: 0.8; }
+            100% { transform: scale(0.5) translateY(-50px); opacity: 0; display: none; }
+        }
+        .push-animation {
+            animation: pushIn 0.4s ease-out;
+        }
+        @keyframes pushIn {
+            0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 font-sans min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Data Structures Visualizer</h1>
+            <p class="text-slate-400">Interactive Array and Stack Operations</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Array Visualizer -->
+            <div class="bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-emerald-400">Array Operations</h2>
+                    <div class="space-x-2">
+                        <button onclick="appendArray()" class="px-4 py-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg text-sm font-medium transition-colors">Append</button>
+                        <button onclick="popArray()" class="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg text-sm font-medium transition-colors">Pop</button>
+                    </div>
+                </div>
+                
+                <div class="h-32 flex items-center overflow-x-auto bg-slate-900/50 rounded-xl p-4 border border-slate-700/50" id="array-container">
+                    <!-- Array items will be inserted here -->
+                </div>
+                <div class="mt-4 text-sm text-slate-400 font-mono" id="array-info">Length: 0</div>
+            </div>
+
+            <!-- Stack Visualizer -->
+            <div class="bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-cyan-400">Stack (LIFO)</h2>
+                    <div class="space-x-2">
+                        <button onclick="pushStack()" class="px-4 py-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-lg text-sm font-medium transition-colors">Push</button>
+                        <button onclick="popStack()" class="px-4 py-2 bg-pink-500/20 text-pink-400 hover:bg-pink-500/30 rounded-lg text-sm font-medium transition-colors">Pop</button>
+                    </div>
+                </div>
+                
+                <div class="h-64 flex justify-center items-end bg-slate-900/50 rounded-xl p-4 border border-slate-700/50 relative overflow-hidden">
+                    <div class="w-32 flex flex-col-reverse gap-2" id="stack-container">
+                        <!-- Stack items will be inserted here -->
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-slate-400 font-mono" id="stack-info">Size: 0 | Top: null</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let array = [10, 20, 30];
+        let stack = [];
+        let valCounter = 40;
+
+        function renderArray(animationIdx = -1) {
+            const container = document.getElementById('array-container');
+            container.innerHTML = '';
+            array.forEach((val, idx) => {
+                const el = document.createElement('div');
+                el.className = `ds-element flex-shrink-0 w-16 h-16 flex items-center justify-center bg-slate-700 border-2 border-slate-600 rounded-lg mx-1 text-lg font-bold shadow-lg ${idx === animationIdx ? 'push-animation bg-emerald-600 border-emerald-400 text-white' : 'text-slate-300'}`;
+                el.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs text-slate-500 mb-1">${idx}</span>
+                        <span>${val}</span>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+            document.getElementById('array-info').innerText = `Length: ${array.length}`;
+        }
+
+        function appendArray() {
+            array.push(valCounter++);
+            renderArray(array.length - 1);
+        }
+
+        function popArray() {
+            if (array.length === 0) return;
+            const container = document.getElementById('array-container');
+            const lastEl = container.lastElementChild;
+            lastEl.classList.add('pop-animation');
+            lastEl.classList.add('bg-red-600', 'border-red-400');
+            setTimeout(() => {
+                array.pop();
+                renderArray();
+            }, 400);
+        }
+
+        function renderStack(animationPush = false) {
+            const container = document.getElementById('stack-container');
+            container.innerHTML = '';
+            stack.forEach((val, idx) => {
+                const el = document.createElement('div');
+                const isTop = idx === stack.length - 1;
+                el.className = `ds-element w-full h-12 flex items-center justify-center rounded-lg border-2 text-lg font-bold shadow-lg
+                    ${isTop && animationPush ? 'push-animation bg-cyan-600 border-cyan-400 text-white' : 'bg-slate-700 border-slate-600 text-slate-300'}
+                    ${isTop && !animationPush ? 'border-cyan-500/50' : ''}`;
+                el.innerText = val;
+                container.appendChild(el);
+            });
+            const topVal = stack.length > 0 ? stack[stack.length - 1] : 'null';
+            document.getElementById('stack-info').innerText = `Size: ${stack.length} | Top: ${topVal}`;
+        }
+
+        function pushStack() {
+            stack.push(Math.floor(Math.random() * 100));
+            renderStack(true);
+        }
+
+        function popStack() {
+            if (stack.length === 0) return;
+            const container = document.getElementById('stack-container');
+            const topEl = container.lastElementChild;
+            topEl.classList.add('pop-animation', 'bg-pink-600', 'border-pink-400', 'text-white');
+            setTimeout(() => {
+                stack.pop();
+                renderStack();
+            }, 400);
+        }
+
+        // Initial render
+        renderArray();
+        renderStack();
+    </script>
+</body>
+</html>

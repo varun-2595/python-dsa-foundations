@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 3 Capstone Visualizer: Key-Value Store</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e2e; color: #cdd6f4; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; color: #89b4fa; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .box { background: #313244; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .box h2 { margin-top: 0; color: #a6e3a1; font-size: 1.2rem; border-bottom: 1px solid #45475a; padding-bottom: 10px; }
+        .kv-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .kv-table th, .kv-table td { padding: 8px; text-align: left; border-bottom: 1px solid #45475a; }
+        .kv-table th { color: #f9e2af; }
+        .stack { display: flex; flex-direction: column-reverse; gap: 10px; margin-top: 10px; }
+        .stack-item { background: #45475a; padding: 10px; border-radius: 5px; border-left: 4px solid #f38ba8; }
+        .controls { text-align: center; margin-top: 30px; padding: 20px; background: #313244; border-radius: 10px; }
+        button { background: #89b4fa; color: #11111b; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        button:hover { background: #b4befe; }
+        .input-group { margin-bottom: 15px; }
+        input { padding: 8px; background: #1e1e2e; color: #cdd6f4; border: 1px solid #45475a; border-radius: 5px; margin: 0 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>In-Memory Database Architecture</h1>
+        <p style="text-align: center;">Visualizing Main Storage vs. Transaction Stack</p>
+        
+        <div class="controls">
+            <div class="input-group">
+                <input type="text" id="key" placeholder="Key (e.g., 'a')">
+                <input type="text" id="val" placeholder="Value (e.g., '10')">
+                <button onclick="setKV()">SET</button>
+                <button onclick="deleteK()" style="background: #f38ba8;">DELETE</button>
+            </div>
+            <div>
+                <button onclick="begin()" style="background: #a6e3a1;">BEGIN TRANSACTION</button>
+                <button onclick="commit()" style="background: #f9e2af;">COMMIT</button>
+                <button onclick="rollback()" style="background: #fab387;">ROLLBACK</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="box">
+                <h2>Main Store (Global)</h2>
+                <table class="kv-table" id="mainStore">
+                    <tr><th>Key</th><th>Value</th></tr>
+                </table>
+            </div>
+            
+            <div class="box">
+                <h2>Transaction Stack (Local)</h2>
+                <div class="stack" id="txStack">
+                    <!-- Transactions go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mainStore = {};
+        let transactions = [];
+
+        function render() {
+            // Render main store
+            const mTable = document.getElementById('mainStore');
+            mTable.innerHTML = '<tr><th>Key</th><th>Value</th></tr>';
+            for (const [k, v] of Object.entries(mainStore)) {
+                mTable.innerHTML += `<tr><td>${k}</td><td>${v}</td></tr>`;
+            }
+
+            // Render stack
+            const sDiv = document.getElementById('txStack');
+            sDiv.innerHTML = '';
+            if (transactions.length === 0) {
+                sDiv.innerHTML = '<div style="color: #6c7086; text-align: center; margin-top: 20px;">No active transactions</div>';
+            } else {
+                transactions.forEach((tx, i) => {
+                    let items = Object.entries(tx).map(([k, v]) => `${k}: ${v === null ? 'DELETED' : v}`).join('<br>');
+                    if (!items) items = "<em>Empty</em>";
+                    sDiv.innerHTML += `<div class="stack-item"><strong>Tx Level ${i+1}</strong><br>${items}</div>`;
+                });
+            }
+        }
+
+        function setKV() {
+            const k = document.getElementById('key').value;
+            const v = document.getElementById('val').value;
+            if(!k) return;
+            
+            if (transactions.length > 0) {
+                transactions[transactions.length - 1][k] = v;
+            } else {
+                mainStore[k] = v;
+            }
+            render();
+        }
+
+        function deleteK() {
+            const k = document.getElementById('key').value;
+            if(!k) return;
+
+            if (transactions.length > 0) {
+                transactions[transactions.length - 1][k] = null;
+            } else {
+                delete mainStore[k];
+            }
+            render();
+        }
+
+        function begin() {
+            transactions.push({});
+            render();
+        }
+
+        function commit() {
+            if (transactions.length === 0) return;
+            const currentTx = transactions.pop();
+            
+            if (transactions.length > 0) {
+                // Merge to parent tx
+                const parent = transactions[transactions.length - 1];
+                for (const [k, v] of Object.entries(currentTx)) {
+                    parent[k] = v;
+                }
+            } else {
+                // Merge to main store
+                for (const [k, v] of Object.entries(currentTx)) {
+                    if (v === null) delete mainStore[k];
+                    else mainStore[k] = v;
+                }
+            }
+            render();
+        }
+
+        function rollback() {
+            if (transactions.length === 0) return;
+            transactions.pop();
+            render();
+        }
+
+        render();
+    </script>
+</body>
+</html>

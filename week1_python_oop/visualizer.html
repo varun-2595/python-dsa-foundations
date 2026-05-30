@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python OOP Execution Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flow-element {
+            transition: all 0.3s ease-in-out;
+        }
+        .flow-element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .active-step {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+        <header class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Python OOP Execution Flow</h1>
+            <p class="text-lg text-slate-600">Interactive visualization of class instantiation and method calls</p>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Code Section -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-slate-800 px-4 py-3 flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-slate-400 text-sm ml-4 font-mono">oop_example.py</span>
+                </div>
+                <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto">
+                    <pre><code class="language-python">
+<span id="line1" class="text-slate-700 block p-1 rounded">class Dog:</span>
+<span id="line2" class="text-slate-700 block p-1 rounded">    def __init__(self, name):</span>
+<span id="line3" class="text-slate-700 block p-1 rounded ml-4">self.name = name</span>
+<span id="line4" class="text-slate-700 block p-1 rounded"></span>
+<span id="line5" class="text-slate-700 block p-1 rounded">    def bark(self):</span>
+<span id="line6" class="text-slate-700 block p-1 rounded ml-4">return f"{self.name} says woof!"</span>
+<span id="line7" class="text-slate-700 block p-1 rounded"></span>
+<span id="line8" class="text-slate-700 block p-1 rounded"># Execution</span>
+<span id="line9" class="text-slate-700 block p-1 rounded">my_dog = Dog("Rex")</span>
+<span id="line10" class="text-slate-700 block p-1 rounded">print(my_dog.bark())</span>
+                    </code></pre>
+                </div>
+            </div>
+
+            <!-- Memory / Output Section -->
+            <div class="space-y-8">
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                    <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Memory Space</h2>
+                    
+                    <div class="space-y-4">
+                        <div id="class-def" class="flow-element border-2 border-slate-200 rounded-xl p-4 opacity-50">
+                            <h3 class="font-semibold text-indigo-700">Class: Dog</h3>
+                            <p class="text-sm text-slate-500 mt-1">Methods: __init__, bark</p>
+                        </div>
+                        
+                        <div id="instance-def" class="flow-element border-2 border-slate-200 rounded-xl p-4 opacity-50">
+                            <h3 class="font-semibold text-blue-700">Instance: my_dog</h3>
+                            <p class="text-sm text-slate-500 mt-1">Attributes: <span id="attr-name" class="font-mono bg-slate-100 px-1 rounded hidden">name = "Rex"</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-2xl shadow-xl p-6 border border-slate-800 h-48">
+                    <h2 class="text-sm font-mono text-slate-400 mb-2">Terminal Output</h2>
+                    <div id="terminal-output" class="font-mono text-green-400 text-lg"></div>
+                </div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button id="btn-next" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-200">Step Forward</button>
+                    <button id="btn-reset" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-medium transition-colors">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            { line: 'line1', action: () => document.getElementById('class-def').classList.remove('opacity-50', 'border-slate-200'), classToAdd: ['border-indigo-500', 'bg-indigo-50'] },
+            { line: 'line9', action: () => document.getElementById('instance-def').classList.remove('opacity-50', 'border-slate-200'), classToAdd: ['border-blue-500', 'bg-blue-50'] },
+            { line: 'line2', action: () => {} },
+            { line: 'line3', action: () => document.getElementById('attr-name').classList.remove('hidden') },
+            { line: 'line10', action: () => {} },
+            { line: 'line5', action: () => {} },
+            { line: 'line6', action: () => {} },
+            { line: 'line10', action: () => document.getElementById('terminal-output').innerText = 'Rex says woof!' }
+        ];
+
+        let currentStep = 0;
+
+        document.getElementById('btn-next').addEventListener('click', () => {
+            if (currentStep < steps.length) {
+                // Remove active from previous
+                document.querySelectorAll('span[id^="line"]').forEach(el => el.classList.remove('bg-yellow-100', 'font-bold'));
+                
+                // Highlight current
+                const step = steps[currentStep];
+                document.getElementById(step.line).classList.add('bg-yellow-100', 'font-bold');
+                
+                // Execute action
+                step.action();
+                if(step.classToAdd) {
+                    const el = document.getElementById(step.line === 'line1' ? 'class-def' : 'instance-def');
+                    el.classList.add(...step.classToAdd);
+                }
+                
+                currentStep++;
+            }
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            currentStep = 0;
+            document.querySelectorAll('span[id^="line"]').forEach(el => el.classList.remove('bg-yellow-100', 'font-bold'));
+            
+            document.getElementById('class-def').className = 'flow-element border-2 border-slate-200 rounded-xl p-4 opacity-50';
+            document.getElementById('instance-def').className = 'flow-element border-2 border-slate-200 rounded-xl p-4 opacity-50';
+            document.getElementById('attr-name').classList.add('hidden');
+            document.getElementById('terminal-output').innerText = '';
+        });
+    </script>
+</body>
+</html>
